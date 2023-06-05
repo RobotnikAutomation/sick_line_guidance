@@ -151,16 +151,20 @@ add_library(${PROJECT_NAME}_lib
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+set(LibraryPath "/opt/ros/melodic/lib/")
+
+find_library(canopen_ros_chain_LIBRARIES NAMES canopen_ros_chain PATHS ${LibraryPath})
+find_library(random_numbers_LIBRARIES NAMES random_numbers PATHS ${LibraryPath})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node            src/sick_line_guidance_node.cpp)
-add_executable(${PROJECT_NAME}_can_chain_node  src/sick_line_guidance_can_chain_node.cpp)
-add_executable(${PROJECT_NAME}_cloud_publisher src/sick_line_guidance_cloud_publisher.cpp)
-add_executable(${PROJECT_NAME}_can2ros_node    src/sick_line_guidance_can2ros_node.cpp)
-add_executable(${PROJECT_NAME}_ros2can_node    src/sick_line_guidance_ros2can_node.cpp)
-add_executable(sick_canopen_simu_node          src/sick_canopen_simu_node.cpp)
+add_executable(${PROJECT_NAME}_node            src/sick_line_guidance_node.cpp )
+add_executable(${PROJECT_NAME}_can_chain_node  src/sick_line_guidance_can_chain_node.cpp )
+add_executable(${PROJECT_NAME}_cloud_publisher src/sick_line_guidance_cloud_publisher.cpp )
+add_executable(${PROJECT_NAME}_can2ros_node    src/sick_line_guidance_can2ros_node.cpp )
+add_executable(${PROJECT_NAME}_ros2can_node    src/sick_line_guidance_ros2can_node.cpp )
+add_executable(sick_canopen_simu_node          src/sick_canopen_simu_node.cpp )
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -171,14 +175,14 @@ add_executable(sick_canopen_simu_node          src/sick_canopen_simu_node.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(${PROJECT_NAME}_node
-  random_numbers
-  canopen_ros_chain
+  ${random_numbers_LIBRARIES}
+  ${canopen_ros_chain_LIBRARIES}
   ${PROJECT_NAME}_lib
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
 )
 add_dependencies(${PROJECT_NAME}_can_chain_node
-  canopen_ros_chain
+${canopen_ros_chain_LIBRARIES}
   ${PROJECT_NAME}_lib
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
@@ -189,13 +193,13 @@ add_dependencies(${PROJECT_NAME}_cloud_publisher
   ${catkin_EXPORTED_TARGETS}
 )
 add_dependencies(${PROJECT_NAME}_can2ros_node
-  canopen_ros_chain
+${canopen_ros_chain_LIBRARIES}
   ${PROJECT_NAME}_lib
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
 )
 add_dependencies(${PROJECT_NAME}_ros2can_node
-  canopen_ros_chain
+${canopen_ros_chain_LIBRARIES}
   ${PROJECT_NAME}_lib
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
@@ -205,62 +209,67 @@ add_dependencies(${PROJECT_NAME}_lib
   ${catkin_EXPORTED_TARGETS}
 )
 add_dependencies(sick_canopen_simu_node
-  random_numbers
-  canopen_ros_chain
+${random_numbers_LIBRARIES}
+  ${canopen_ros_chain_LIBRARIES}
   ${PROJECT_NAME}_lib
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
 )
 
+if (canopen_ros_chain_LIBRARIES AND random_numbers_LIBRARIES)
+    target_link_libraries(${PROJECT_NAME}_node 
+      ${canopen_ros_chain_LIBRARIES}
+      ${random_numbers_LIBRARIES}
+      ${PROJECT_NAME}_lib
+      ${Boost_LIBRARIES}
+      ${catkin_LIBRARIES}
+      ${TinyXML_LIBRARIES}
+    )
+    target_link_libraries(${PROJECT_NAME}_can_chain_node
+      ${canopen_ros_chain_LIBRARIES}
+      ${PROJECT_NAME}_lib
+      ${Boost_LIBRARIES}
+      ${catkin_LIBRARIES}
+      ${TinyXML_LIBRARIES}
+    )
+    target_link_libraries(${PROJECT_NAME}_cloud_publisher
+      ${PROJECT_NAME}_lib
+      ${Boost_LIBRARIES}
+      ${catkin_LIBRARIES}
+      ${TinyXML_LIBRARIES}
+    )
+    target_link_libraries(${PROJECT_NAME}_can2ros_node
+      ${canopen_ros_chain_LIBRARIES}
+      ${PROJECT_NAME}_lib
+      ${Boost_LIBRARIES}
+      ${catkin_LIBRARIES}
+      ${TinyXML_LIBRARIES}
+    )
+    target_link_libraries(${PROJECT_NAME}_ros2can_node
+      ${canopen_ros_chain_LIBRARIES}
+      ${PROJECT_NAME}_lib
+      ${Boost_LIBRARIES}
+      ${catkin_LIBRARIES}
+      ${TinyXML_LIBRARIES}
+    )
+    target_link_libraries(${PROJECT_NAME}_lib
+      ${Boost_LIBRARIES}
+      ${catkin_LIBRARIES}
+      ${TinyXML_LIBRARIES}
+    )
+    target_link_libraries(sick_canopen_simu_node
+      ${canopen_ros_chain_LIBRARIES}
+      ${random_numbers_LIBRARIES}
+      ${PROJECT_NAME}_lib
+      ${Boost_LIBRARIES}
+      ${catkin_LIBRARIES}
+      ${TinyXML_LIBRARIES}
+    )
+else ()
+message(FATAL_ERROR "One or both libraries not found.")
+endif ()
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
-  canopen_ros_chain
-  random_numbers
-  ${PROJECT_NAME}_lib
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  ${TinyXML_LIBRARIES}
-)
-target_link_libraries(${PROJECT_NAME}_can_chain_node
-  canopen_ros_chain
-  ${PROJECT_NAME}_lib
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  ${TinyXML_LIBRARIES}
-)
-target_link_libraries(${PROJECT_NAME}_cloud_publisher
-  ${PROJECT_NAME}_lib
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  ${TinyXML_LIBRARIES}
-)
-target_link_libraries(${PROJECT_NAME}_can2ros_node
-  canopen_ros_chain
-  ${PROJECT_NAME}_lib
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  ${TinyXML_LIBRARIES}
-)
-target_link_libraries(${PROJECT_NAME}_ros2can_node
-  canopen_ros_chain
-  ${PROJECT_NAME}_lib
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  ${TinyXML_LIBRARIES}
-)
-target_link_libraries(${PROJECT_NAME}_lib
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  ${TinyXML_LIBRARIES}
-)
-target_link_libraries(sick_canopen_simu_node
-  canopen_ros_chain
-  random_numbers
-  ${PROJECT_NAME}_lib
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  ${TinyXML_LIBRARIES}
-)
+
 
 #############
 ## Install ##
